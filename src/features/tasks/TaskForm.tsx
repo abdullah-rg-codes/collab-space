@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import type { Task, TaskPriority } from '../../types'
 import { TaskStatus } from '../../types'
 import { Button, TextInput, TextArea, Select, DateInput } from '../../components/ui'
+import { useDirtyState, checkTaskFormDirty } from '../../hooks/useDirtyState'
 import styles from './TaskForm.module.css'
 
 interface TaskFormProps {
@@ -23,9 +24,23 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
     const [dueDate, setDueDate] = useState(
         task?.dueDate ? dayjs(task.dueDate).format('YYYY-MM-DD') : dayjs().add(1, 'day').format('YYYY-MM-DD')
     )
+    const [showDirtyWarning, setShowDirtyWarning] = useState(false)
 
     // createdAt is read-only and only shown in edit mode
     const createdAtDisplay = task?.createdAt ? dayjs(task.createdAt).format('MMMM D, YYYY [at] h:mm A') : null
+
+    // Check if form is dirty (has unsaved changes)
+    const isDirty = checkTaskFormDirty(task, {
+        title,
+        description,
+        priority,
+        assignee,
+        tags,
+        dueDate,
+    })
+
+    // Enable dirty state warning
+    useDirtyState(isDirty)
 
     // Validation
     const validate = useCallback(() => {
@@ -75,6 +90,26 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
     // Handle removing tags
     const handleRemoveTag = (tagToRemove: string) => {
         setTags(tags.filter(tag => tag !== tagToRemove))
+    }
+
+    // Handle cancel with dirty state check
+    const handleCancel = () => {
+        if (isDirty) {
+            setShowDirtyWarning(true)
+        } else {
+            onCancel()
+        }
+    }
+
+    // Confirm cancel despite unsaved changes
+    const handleConfirmCancel = () => {
+        setShowDirtyWarning(false)
+        onCancel()
+    }
+
+    // Keep editing (close warning without leaving)
+    const handleContinueEditing = () => {
+        setShowDirtyWarning(false)
     }
 
     const isEditing = !!task
@@ -172,13 +207,31 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
 
             {/* Form Actions */}
             <div className={styles.formActions}>
-                <Button variant="secondary" onClick={onCancel} type="button">
+                <Button variant="secondary" onClick={handleCancel} type="button">
                     Cancel
                 </Button>
                 <Button variant="primary" type="submit">
                     {isEditing ? 'Update' : 'Create'}
                 </Button>
             </div>
+
+            {/* Dirty State Warning Modal */}
+            {showDirtyWarning && (
+                <div className={styles.dirtyWarningOverlay}>
+                    <div className={styles.dirtyWarningDialog}>
+                        <h3>Unsaved Changes</h3>
+                        <p>You have unsaved changes. Are you sure you want to leave without saving?</p>
+                        <div className={styles.dirtyWarningActions}>
+                            <Button variant="secondary" onClick={handleContinueEditing}>
+                                Continue Editing
+                            </Button>
+                            <Button variant="destructive" onClick={handleConfirmCancel}>
+                                Discard Changes
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </form>
     )
 }
