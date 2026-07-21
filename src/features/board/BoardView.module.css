@@ -28,6 +28,11 @@
   gap: 8px;
 }
 
+.statusFilters {
+  display: flex;
+  gap: 8px;
+}
+
 .sortSelect {
   min-width: 180px;
 }

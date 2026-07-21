@@ -1,8 +1,9 @@
 import './App.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Task, TaskStatus } from './types'
 import { Button, Modal } from './components/ui'
 import { useTasks } from './hooks/useTasks'
+import { useUrlFilters } from './hooks/useUrlFilters'
 import BoardView from './features/board/BoardView'
 import TaskForm from './features/tasks/TaskForm'
 
@@ -18,10 +19,18 @@ function App() {
     setSortBy,
   } = useTasks()
 
+  // Initialize URL filters on mount
+  const { updateUrlWithFilters } = useUrlFilters(setFilter, setSortBy)
+
   // Modal state for create/edit
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | undefined>()
   const [taskToDelete, setTaskToDelete] = useState<Task | undefined>()
+
+  // Sync filters/sort to URL whenever they change
+  useEffect(() => {
+    updateUrlWithFilters(filters.status, filters.priority, filters.search, sortBy)
+  }, [filters.status, filters.priority, filters.search, sortBy, updateUrlWithFilters])
 
   // Handle edit task
   const handleEditTask = (task: Task) => {

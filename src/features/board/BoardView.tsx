@@ -37,12 +37,27 @@ export default function BoardView({
   // Priority filter buttons
   const priorities: TaskPriority[] = ['High', 'Medium', 'Low']
 
+  // Status filter values
+  const statuses: TaskStatus[] = [
+    TaskStatus.BACKLOG,
+    TaskStatus.IN_PROGRESS,
+    TaskStatus.DONE,
+  ]
+
   // Handle priority filter toggle
   const togglePriorityFilter = (priority: TaskPriority) => {
     const newPriorities = filters.priority.includes(priority)
       ? filters.priority.filter(p => p !== priority)
       : [...filters.priority, priority]
     setFilter({ priority: newPriorities })
+  }
+
+  // Handle status filter toggle
+  const toggleStatusFilter = (status: TaskStatus) => {
+    const newStatuses = filters.status.includes(status)
+      ? filters.status.filter(s => s !== status)
+      : [...filters.status, status]
+    setFilter({ status: newStatuses })
   }
 
   // Handle search
@@ -89,6 +104,20 @@ export default function BoardView({
           ))}
         </div>
 
+        {/* Status Filter Buttons */}
+        <div className={styles.statusFilters}>
+          {statuses.map(status => (
+            <Button
+              key={status}
+              variant={filters.status.includes(status) ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => toggleStatusFilter(status)}
+            >
+              {status}
+            </Button>
+          ))}
+        </div>
+
         {/* Sort Dropdown */}
         <Select
           value={sortBy}
@@ -102,7 +131,7 @@ export default function BoardView({
         />
 
         {/* Clear Filters Button */}
-        {(filters.priority.length > 0 || filters.search) && (
+        {(filters.status.length > 0 || filters.priority.length > 0 || filters.search) && (
           <Button
             variant="secondary"
             size="sm"
