@@ -9,8 +9,7 @@
 import type { Task } from "../types";
 
 const STORAGE_KEY = 'collab-space-data';
-const CURRENT_VERSION = 2;
-
+const CURRENT_VERSION = 3;
 
 // * Storage schema interface - versioned
 interface StorageSchema {
@@ -37,12 +36,31 @@ interface StorageSchemaV1 {
 }
 
 /**
+ * V2 schema (old format) - for migration purposes
+ */
+interface StorageSchemaV2 {
+  version: 2
+  tasks: Array<{
+    id: string
+    title: string
+    description: string
+    status: string
+    priority: string
+    assignee: string
+    tags: string[]
+    createdAt: number
+    updatedAt: number
+  }>
+}
+
+/**
  * Migrate from V1 to V2
  * Changes:
  * - Rename 'desc' field to 'description'
  * - Add empty 'tags' array
  */
-function migrateV1ToV2(data: StorageSchemaV1): StorageSchema {
+function migrateV1ToV2(data: StorageSchemaV1): StorageSchemaV2 {
+  console.log('[Storage] Migrating V1 → V2: Adding tags field')
   return {
     version: 2,
     tasks: data.tasks.map((task: any) => ({
@@ -56,6 +74,23 @@ function migrateV1ToV2(data: StorageSchemaV1): StorageSchema {
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
     })),
+  }
+}
+
+/**
+ * Migrate from V2 to V3
+ * Changes:
+ * - Add 'dueDate' field (set to createdAt + 7 days by default)
+ */
+function migrateV2ToV3(data: StorageSchemaV2): StorageSchema {
+  console.log('[Storage] Migrating V2 → V3: Adding dueDate field')
+  const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000
+  return {
+    version: 3,
+    tasks: data.tasks.map((task: any) => ({
+      ...task,
+      dueDate: task.dueDate || task.createdAt + ONE_WEEK_MS,
+    })),
     lastMigrated: Date.now(),
   }
 }
@@ -63,11 +98,18 @@ function migrateV1ToV2(data: StorageSchemaV1): StorageSchema {
 //  Migrate data to current version
 function migrate(data: any): StorageSchema {
   if (!data.version || data.version === 1) {
-    console.log('[Storage] Migrating from V1 to V2')
-    return migrateV1ToV2(data)
+    console.log('[Storage] Detected V1 schema, starting migration chain')
+    const v2 = migrateV1ToV2(data)
+    return migrateV2ToV3(v2)
+  }
+
+  if (data.version === 2) {
+    console.log('[Storage] Detected V2 schema, migrating to V3')
+    return migrateV2ToV3(data)
   }
 
   if (data.version === CURRENT_VERSION) {
+    console.log('[Storage] Data already at current version (V3)')
     return data
   }
 

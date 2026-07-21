@@ -47,7 +47,7 @@ export default function BoardView({
   // Handle priority filter toggle
   const togglePriorityFilter = (priority: TaskPriority) => {
     const newPriorities = filters.priority.includes(priority)
-      ? filters.priority.filter(p => p !== priority)
+      ? filters.priority.filter((p: TaskPriority) => p !== priority)
       : [...filters.priority, priority]
     setFilter({ priority: newPriorities })
   }
@@ -55,7 +55,7 @@ export default function BoardView({
   // Handle status filter toggle
   const toggleStatusFilter = (status: TaskStatus) => {
     const newStatuses = filters.status.includes(status)
-      ? filters.status.filter(s => s !== status)
+      ? filters.status.filter((s: TaskStatus) => s !== status)
       : [...filters.status, status]
     setFilter({ status: newStatuses })
   }

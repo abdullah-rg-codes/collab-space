@@ -1,16 +1,13 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 
 /**
  * Custom hook to detect and warn about unsaved changes
  * Warns user before leaving page or closing modal if there are unsaved changes
  *
  * Usage:
- * const isDirty = useDirtyState(formData, onConfirmLeave)
+ * const isDirty = useDirtyState(formData)
  */
-export function useDirtyState(
-  isDirty: boolean,
-  onBeforeLeave?: () => void
-) {
+export function useDirtyState(isDirty: boolean) {
   const isDirtyRef = useRef(isDirty)
 
   // Update ref when isDirty changes
