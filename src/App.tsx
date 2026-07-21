@@ -1,9 +1,11 @@
 import './App.css'
 import { useState, useEffect } from 'react'
-import type { Task, TaskStatus } from './types'
-import { Button, Modal } from './components/ui'
+import type { Task, TaskStatus, ToastProps } from './types'
+import { Button, Modal, ToastContainer } from './components/ui'
 import { useTasks } from './hooks/useTasks'
 import { useUrlFilters } from './hooks/useUrlFilters'
+import { useToast } from './hooks/useToast'
+import { didMigrationHappen } from './lib/storage'
 import BoardView from './features/board/BoardView'
 import TaskForm from './features/tasks/TaskForm'
 
@@ -19,6 +21,8 @@ function App() {
     setSortBy,
   } = useTasks()
 
+  const { toasts, addToast, removeToast } = useToast()
+
   // Initialize URL filters on mount
   const { updateUrlWithFilters } = useUrlFilters(setFilter, setSortBy)
 
@@ -26,6 +30,13 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | undefined>()
   const [taskToDelete, setTaskToDelete] = useState<Task | undefined>()
+
+  // Show migration notification on mount if migration happened
+  useEffect(() => {
+    if (didMigrationHappen()) {
+      addToast('Your data has been automatically upgraded to the latest version', 'success', 5000)
+    }
+  }, [addToast])
 
   // Sync filters/sort to URL whenever they change
   useEffect(() => {
@@ -107,6 +118,9 @@ function App() {
           </div>
           <Button variant='primary' onClick={handleCreateNew} >+ New Task</Button>
         </header>
+
+        {/* Toast Notifications */}
+        <ToastContainer toasts={toasts as (ToastProps & { id: string })[]} onClose={removeToast} />
 
         {/* Main Board */}
         <main className='appMain'><BoardView filteredTasks={filteredTasks}
