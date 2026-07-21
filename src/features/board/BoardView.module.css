@@ -1,0 +1,26 @@
+.boardContainer {
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.boardContainer h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.columnsWrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Mobile: stack columns vertically */
+@media (max-width: 1024px) {
+  .columnsWrapper {
+    grid-template-columns: 1fr;
+  }
+}
