@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
+import dayjs from 'dayjs'
 import type { Task, TaskPriority } from '../../types'
 import { TaskStatus } from '../../types'
-import { Button, TextInput, TextArea, Select } from '../../components/ui'
+import { Button, TextInput, TextArea, Select, DateInput } from '../../components/ui'
 import styles from './TaskForm.module.css'
 
 interface TaskFormProps {
@@ -19,6 +20,12 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
     const [tags, setTags] = useState<string[]>(task?.tags ?? [])
     const [tagInput, setTagInput] = useState('')
     const [error, setError] = useState('')
+    const [dueDate, setDueDate] = useState(
+        task?.dueDate ? dayjs(task.dueDate).format('YYYY-MM-DD') : dayjs().add(1, 'day').format('YYYY-MM-DD')
+    )
+
+    // createdAt is read-only and only shown in edit mode
+    const createdAtDisplay = task?.createdAt ? dayjs(task.createdAt).format('MMMM D, YYYY [at] h:mm A') : null
 
     // Validation
     const validate = useCallback(() => {
@@ -39,6 +46,9 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
 
         if (!validate()) return
 
+        const now = dayjs().valueOf() // Get current timestamp
+        const dueDateTimestamp = dayjs(dueDate).valueOf() // Convert selected date to timestamp
+
         const newTask: Task = {
             id: task?.id ?? `task-${Date.now()}`,
             title: title.trim(),
@@ -47,8 +57,9 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
             assignee: assignee.trim(),
             tags,
             status: task?.status ?? TaskStatus.BACKLOG,
-            createdAt: task?.createdAt ?? Date.now(),
-            updatedAt: Date.now(),
+            createdAt: task?.createdAt ?? now, // Keep original creation time, or set now for new tasks
+            updatedAt: now, // Always update the modification time
+            dueDate: dueDateTimestamp,
         }
 
         onSubmit(newTask)
@@ -69,8 +80,6 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
     const isEditing = !!task
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
-            <h2>{isEditing ? 'Edit Task' : 'Create New Task'}</h2>
-
             {error && <div className={styles.error}>{error}</div>}
 
             {/* Title */}
@@ -110,6 +119,21 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
                 value={assignee}
                 onChange={setAssignee}
             />
+
+            {/* Task Finish Date (Due Date) - Editable */}
+            <DateInput
+                label="Task Finish Date"
+                value={dueDate}
+                onChange={setDueDate}
+            />
+
+            {/* Created At - Read-only (only shown in edit mode) */}
+            {createdAtDisplay && (
+                <div className={styles.createdAtReadOnly}>
+                    <label>Created At</label>
+                    <p>{createdAtDisplay}</p>
+                </div>
+            )}
 
             {/* Tags */}
             <div className={styles.tagsSection}>

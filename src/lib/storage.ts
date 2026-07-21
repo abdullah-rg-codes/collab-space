@@ -84,6 +84,7 @@ let migrationHappened = false
 // * Load tasks from localStorage
 export function loadTasks(): Task[] {
   try {
+    console.log('[Storage] loadTasks() called')
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       console.log('[Storage] No existing data, starting new')
@@ -91,9 +92,12 @@ export function loadTasks(): Task[] {
       return []
     }
     const parsed = JSON.parse(raw);
+    console.log('[Storage] Parsed data:', parsed)
     const migrated = migrate(parsed);
+    console.log('[Storage] Migrated data:', migrated)
     migrationHappened = parsed.version !== CURRENT_VERSION
     localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
+    console.log('[Storage] Loaded tasks count:', migrated.tasks?.length)
     return migrated.tasks || [];
   } catch (err) {
     console.error('[Storage] Failed to load tasks:', err)
@@ -105,12 +109,15 @@ export function loadTasks(): Task[] {
 // Save tasks to localStorage
 export function saveTasks(tasks: Task[]): boolean {
   try {
+    console.log('[Storage] saveTasks() called with', tasks.length, 'tasks')
+    console.log('[Storage] Tasks to save:', tasks)
     const data: StorageSchema = {
       version: CURRENT_VERSION,
       tasks,
       lastMigrated: Date.now(),
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    console.log('[Storage] Successfully saved to localStorage')
     return true
   } catch (error) {
     console.error('[Storage] Failed to save tasks:', error)

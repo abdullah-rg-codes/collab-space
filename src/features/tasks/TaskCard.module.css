@@ -3,12 +3,13 @@
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   padding: 12px;
-  cursor: pointer;
+  cursor: default;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   gap: 8px;
   outline: none;
+  position: relative;
 }
 
 .taskCard:hover {
@@ -16,9 +17,46 @@
   border-color: #1976d2;
 }
 
-.taskCard:focus-visible {
-  outline: 2px solid #1976d2;
-  outline-offset: 2px;
+.actionButtons {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.editButton,
+.deleteButton {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.taskCard:hover .editButton,
+.taskCard:hover .deleteButton {
+  opacity: 1;
+}
+
+.editButton:hover,
+.deleteButton:hover {
+  background: #f0f0f0;
+}
+
+.editButton:active,
+.deleteButton:active {
+  background: #e0e0e0;
+}
+
+.deleteButton:hover {
+  background: #ffebee;
 }
 
 .taskTitle {
@@ -48,8 +86,28 @@
   color: #666;
 }
 
+.dueDate {
+  font-size: 12px;
+  color: #d32f2f;
+  font-weight: 500;
+  padding: 6px 8px;
+  background: #ffebee;
+  border-radius: 4px;
+  display: inline-block;
+}
+
 .tagsContainer {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+
+.relativeTime {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }

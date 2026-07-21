@@ -5,9 +5,11 @@ import styles from './Column.module.css'
 interface ColumnProps {
     status: TaskStatus
     tasks: Task[]
+    onTaskClick: (task: Task) => void
+    onTaskDelete: (task: Task) => void
 }
 
-function Column({ status, tasks }: ColumnProps) {
+function Column({ status, tasks, onTaskClick, onTaskDelete }: ColumnProps) {
     return (
         <div className={styles.columnContainer}>
             <div className={styles.columnHeader}>
@@ -21,7 +23,12 @@ function Column({ status, tasks }: ColumnProps) {
                     <div className={styles.emptyState}>No tasks</div>
                 ) : (
                     tasks.map(task => (
-                        <TaskCard key={task.id} task={task} />
+                        <TaskCard 
+                            key={task.id} 
+                            task={task} 
+                            onEdit={() => onTaskClick(task)}
+                            onDelete={() => onTaskDelete(task)}
+                        />
                     ))
                 )}
             </div>
