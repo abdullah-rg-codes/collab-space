@@ -40,6 +40,12 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.tasksList.dragOver {
+  background-color: #f0f7ff;
+  border-radius: 4px;
 }
 
 .emptyState {

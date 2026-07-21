@@ -12,6 +12,7 @@ interface BoardViewProps {
   setSortBy: (sort: any) => void
   onTaskClick: (task: Task) => void
   onTaskDelete: (task: Task) => void
+  onTaskDrop: (task: Task, newStatus: TaskStatus) => void
 }
 
 export default function BoardView({
@@ -21,7 +22,8 @@ export default function BoardView({
   setFilter,
   setSortBy,
   onTaskClick,
-  onTaskDelete
+  onTaskDelete,
+  onTaskDrop
 }: BoardViewProps) {
   console.log('[BoardView] Rendering BoardView')
   console.log('[BoardView] Received filteredTasks:', filteredTasks)
@@ -123,6 +125,7 @@ export default function BoardView({
               tasks={tasksForStatus}
               onTaskClick={onTaskClick}
               onTaskDelete={onTaskDelete}
+              onTaskDrop={onTaskDrop}
             />
           )
         })}

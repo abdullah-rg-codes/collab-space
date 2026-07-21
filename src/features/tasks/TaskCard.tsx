@@ -12,9 +12,10 @@ interface TaskCardProps {
     task: Task
     onEdit?: () => void
     onDelete?: () => void
+    onDragStart?: (e: React.DragEvent) => void
 }
 
-const TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+const TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete, onDragStart }: TaskCardProps) {
     // Priority color mapping
     const priorityColors: Record<TaskPriority, string> = {
         High: '#d32f2f',
@@ -23,7 +24,11 @@ const TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete }: TaskCa
     }
 
     return (
-        <div className={styles.taskCard}>
+        <div 
+            className={styles.taskCard}
+            draggable
+            onDragStart={onDragStart}
+        >
             {/* Action Buttons */}
             <div className={styles.actionButtons}>
                 {onEdit && (

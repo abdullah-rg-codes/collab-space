@@ -1,6 +1,6 @@
 import './App.css'
 import { useState } from 'react'
-import type { Task } from './types'
+import type { Task, TaskStatus } from './types'
 import { Button, Modal } from './components/ui'
 import { useTasks } from './hooks/useTasks'
 import BoardView from './features/board/BoardView'
@@ -51,6 +51,15 @@ function App() {
     setTaskToDelete(undefined)
   }
 
+  // Handle task drop - move to different column
+  const handleTaskDrop = (task: Task, newStatus: TaskStatus) => {
+    console.log('[App] handleTaskDrop() called - moving task', task.id, 'to', newStatus)
+    if (task.status !== newStatus) {
+      const updatedTask = { ...task, status: newStatus, updatedAt: Date.now() }
+      updateTask(updatedTask)
+    }
+  }
+
   // Open modal for new task
   const handleCreateNew = () => {
     console.log('[App] handleCreateNew() called')
@@ -97,7 +106,8 @@ function App() {
           setFilter={setFilter}
           setSortBy={setSortBy}
           onTaskClick={handleEditTask}
-          onTaskDelete={handleDeleteTask} /></main>
+          onTaskDelete={handleDeleteTask}
+          onTaskDrop={handleTaskDrop} /></main>
         {/* Create/Edit Task Modal */}
         <Modal isOpen={isModalOpen} title={editingTask ? 'Edit Task' : 'Create New Task'}
           onClose={handleCloseModal}>
