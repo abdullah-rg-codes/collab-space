@@ -20,11 +20,13 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
     const [assignee, setAssignee] = useState(task?.assignee ?? '')
     const [tags, setTags] = useState<string[]>(task?.tags ?? [])
     const [tagInput, setTagInput] = useState('')
-    const [error, setError] = useState('')
     const [dueDate, setDueDate] = useState(
         task?.dueDate ? dayjs(task.dueDate).format('YYYY-MM-DD') : dayjs().add(1, 'day').format('YYYY-MM-DD')
     )
     const [showDirtyWarning, setShowDirtyWarning] = useState(false)
+
+    // Field-level validation errors
+    const [errors, setErrors] = useState<Record<string, string>>({})
 
     // createdAt is read-only and only shown in edit mode
     const createdAtDisplay = task?.createdAt ? dayjs(task.createdAt).format('MMMM D, YYYY [at] h:mm A') : null
@@ -42,18 +44,45 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
     // Enable dirty state warning
     useDirtyState(isDirty)
 
-    // Validation
+    // Comprehensive validation
     const validate = useCallback(() => {
+        const newErrors: Record<string, string> = {}
+
+        // Title validation
         if (!title.trim()) {
-            setError('Title is required')
-            return false
+            newErrors.title = 'Title is required'
+        } else if (title.length > 100) {
+            newErrors.title = 'Title must be less than 100 characters'
         }
-        if (title.length > 100) {
-            setError('Title must be less than 100 characters')
-            return false
+
+        // Description validation (optional but has max length)
+        if (description.length > 500) {
+            newErrors.description = 'Description must be less than 500 characters'
         }
-        return true
-    }, [title])
+
+        // Assignee validation (optional but has max length)
+        if (assignee.length > 50) {
+            newErrors.assignee = 'Assignee must be less than 50 characters'
+        }
+
+        // Due date validation
+        const selectedDate = dayjs(dueDate)
+        if (!selectedDate.isValid()) {
+            newErrors.dueDate = 'Please select a valid date'
+        }
+
+        // Tags validation
+        if (tags.length > 10) {
+            newErrors.tags = 'Maximum 10 tags allowed'
+        }
+        const invalidTag = tags.find(tag => tag.length > 20)
+        if (invalidTag) {
+            newErrors.tags = 'Each tag must be less than 20 characters'
+        }
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }, [title, description, assignee, tags, dueDate])
 
     // Handle form submit
     const handleSubmit = (e: React.FormEvent) => {
@@ -115,7 +144,13 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
     const isEditing = !!task
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
-            {error && <div className={styles.error}>{error}</div>}
+            {/* General error banner */}
+            {Object.keys(errors).length > 0 && (
+                <div className={styles.errorBanner}>
+                    <span className={styles.errorIcon}>⚠️</span>
+                    <span>Please fix the errors below</span>
+                </div>
+            )}
 
             {/* Title */}
             <TextInput
@@ -124,7 +159,7 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
                 value={title}
                 onChange={setTitle}
                 required
-                error={error ? 'Title is required' : ''}
+                error={errors.title}
             />
 
             {/* Description */}
@@ -134,6 +169,8 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
                 value={description}
                 onChange={setDescription}
             />
+            {errors.description && <p className={styles.fieldError}>{errors.description}</p>}
+            <p className={styles.charCount}>{description.length}/500 characters</p>
 
             {/* Priority */}
             <Select
@@ -154,6 +191,8 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
                 value={assignee}
                 onChange={setAssignee}
             />
+            {errors.assignee && <p className={styles.fieldError}>{errors.assignee}</p>}
+            <p className={styles.charCount}>{assignee.length}/50 characters</p>
 
             {/* Task Finish Date (Due Date) - Editable */}
             <DateInput
@@ -161,6 +200,7 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
                 value={dueDate}
                 onChange={setDueDate}
             />
+            {errors.dueDate && <p className={styles.fieldError}>{errors.dueDate}</p>}
 
             {/* Created At - Read-only (only shown in edit mode) */}
             {createdAtDisplay && (
@@ -172,10 +212,11 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
 
             {/* Tags */}
             <div className={styles.tagsSection}>
-                <label>Tags</label>
+                <label>Tags <span className={styles.optional}>(max 10)</span></label>
+                {errors.tags && <p className={styles.fieldError}>{errors.tags}</p>}
                 <div className={styles.tagInput}>
                     <TextInput
-                        placeholder="Add a tag..."
+                        placeholder="Add a tag (max 20 characters)..."
                         value={tagInput}
                         onChange={setTagInput}
                         onKeyDown={(e) => {
@@ -185,7 +226,11 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
                             }
                         }}
                     />
-                    <Button onClick={handleAddTag} variant="secondary">
+                    <Button 
+                        onClick={handleAddTag} 
+                        variant="secondary"
+                        disabled={!tagInput.trim() || tags.includes(tagInput.trim()) || tags.length >= 10}
+                    >
                         Add
                     </Button>
                 </div>
@@ -197,6 +242,7 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
                                 type="button"
                                 onClick={() => handleRemoveTag(tag)}
                                 className={styles.removeTag}
+                                aria-label={`Remove ${tag} tag`}
                             >
                                 ✕
                             </button>
