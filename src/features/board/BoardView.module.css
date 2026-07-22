@@ -47,6 +47,39 @@
   margin: 0 auto;
 }
 
+/* Board-level empty states */
+.boardEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 40px;
+  text-align: center;
+  color: #999;
+  min-height: 400px;
+}
+
+.boardEmptyState .emptyStateIcon {
+  font-size: 64px;
+  opacity: 0.5;
+}
+
+.boardEmptyState .emptyStateTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #555;
+}
+
+.boardEmptyState .emptyStateDescription {
+  margin: 0;
+  font-size: 16px;
+  color: #999;
+  line-height: 1.5;
+  max-width: 400px;
+}
+
 /* Mobile: stack columns */
 @media (max-width: 1024px) {
   .columnsWrapper {

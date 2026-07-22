@@ -53,7 +53,15 @@ function Column({ status, tasks, onTaskClick, onTaskDelete, onTaskDrop }: Column
                 onDrop={handleDrop}
             >
                 {tasks.length === 0 ? (
-                    <div className={styles.emptyState}>No tasks</div>
+                    <div className={styles.emptyState}>
+                        <div className={styles.emptyStateIcon}>📭</div>
+                        <p className={styles.emptyStateTitle}>No tasks yet</p>
+                        <p className={styles.emptyStateDescription}>
+                            {status === 'Backlog' && 'Ready to add a new task? Create one above!'}
+                            {status === 'In Progress' && 'Drag tasks here to start working on them'}
+                            {status === 'Done' && 'Completed tasks will appear here'}
+                        </p>
+                    </div>
                 ) : (
                     tasks.map(task => (
                         <TaskCard 

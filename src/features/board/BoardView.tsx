@@ -78,6 +78,15 @@ export default function BoardView({
     setFilter({ status: [], priority: [], search: '' })
   }
 
+  // Check if there are any tasks at all
+  const hasTasks = filteredTasks.length > 0
+  
+  // Check if filters are active
+  const hasActiveFilters = 
+    filters.status.length > 0 || 
+    filters.priority.length > 0 || 
+    filters.search.trim() !== ''
+
   return (
     <div className={styles.boardContainer}>
       {/* Filter & Sort Toolbar */}
@@ -131,7 +140,7 @@ export default function BoardView({
         />
 
         {/* Clear Filters Button */}
-        {(filters.status.length > 0 || filters.priority.length > 0 || filters.search) && (
+        {hasActiveFilters && (
           <Button
             variant="secondary"
             size="sm"
@@ -142,8 +151,34 @@ export default function BoardView({
         )}
       </div>
 
-      {/* Board Columns */}
-      <div className={styles.columnsWrapper}>
+      {/* Empty State - No Tasks at All */}
+      {!hasTasks && !hasActiveFilters && (
+        <div className={styles.boardEmptyState}>
+          <div className={styles.emptyStateIcon}>📋</div>
+          <h2 className={styles.emptyStateTitle}>No tasks yet</h2>
+          <p className={styles.emptyStateDescription}>
+            Get started by creating your first task. Click the "+ New Task" button to begin.
+          </p>
+        </div>
+      )}
+
+      {/* Empty State - Filters Hide All Tasks */}
+      {!hasTasks && hasActiveFilters && (
+        <div className={styles.boardEmptyState}>
+          <div className={styles.emptyStateIcon}>🔍</div>
+          <h2 className={styles.emptyStateTitle}>No tasks match your filters</h2>
+          <p className={styles.emptyStateDescription}>
+            Try adjusting your filters or search to find tasks.
+          </p>
+          <Button variant="secondary" onClick={handleClearFilters} size="sm">
+            Clear Filters
+          </Button>
+        </div>
+      )}
+
+      {/* Board Columns - Only show if there are tasks */}
+      {hasTasks && (
+        <div className={styles.columnsWrapper}>
         {columns.map(status => {
           const tasksForStatus = filteredTasks.filter(task => task.status === status)
           console.log(`[BoardView] Column ${status}: ${tasksForStatus.length} tasks`)
@@ -158,7 +193,8 @@ export default function BoardView({
             />
           )
         })}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
