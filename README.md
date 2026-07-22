@@ -4,6 +4,8 @@ A team workflow board for managing tasks across statuses — built with React, T
 
 Think of it as a simplified Trello/Jira where you can create tasks, drag them between columns, filter/sort, and everything persists in your browser's localStorage.
 
+**Live demo:** https://abdullah-rg-codes.github.io/collab-space/
+
 ---
 
 ## Running the project
