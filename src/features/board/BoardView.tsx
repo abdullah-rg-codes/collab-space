@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react"
+import React, { useMemo, useCallback, useState, useEffect, useRef } from "react"
 import type { Task, TaskPriority } from "../../types"
 import { TaskStatus } from "../../types"
 import { TextInput, Button, Select } from "../../components/ui"
@@ -66,9 +66,32 @@ export default React.memo(function BoardView({
     setFilter({ status: newStatuses })
   }, [setFilter, filters.status])
 
-  const handleSearch = useCallback((searchText: string) => {
-    setFilter({ search: searchText })
+  // Debounced search - local state updates immediately (responsive typing),
+  // but the actual filter only fires after 300ms of inactivity
+  const [searchInput, setSearchInput] = useState(filters.search)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      setFilter({ search: value })
+    }, 300)
   }, [setFilter])
+
+  // Sync local input if filters.search is cleared externally (e.g. "Clear Filters")
+  useEffect(() => {
+    if (filters.search === '' && searchInput !== '') {
+      setSearchInput('')
+    }
+  }, [filters.search])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [])
 
   const handleSortChange = useCallback((newSort: string) => {
     setSortBy(newSort as any)
@@ -94,8 +117,8 @@ export default React.memo(function BoardView({
         {/* Search Input */}
         <TextInput
           placeholder="Search tasks..."
-          value={filters.search}
-          onChange={handleSearch}
+          value={searchInput}
+          onChange={handleSearchChange}
           className={styles.searchInput}
         />
 

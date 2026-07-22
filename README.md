@@ -1,75 +1,126 @@
-# React + TypeScript + Vite
+# CollabSpace
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A team workflow board for managing tasks across statuses — built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+Think of it as a simplified Trello/Jira where you can create tasks, drag them between columns, filter/sort, and everything persists in your browser's localStorage.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Running the project
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+npm install
 
-## Expanding the ESLint configuration
+# Start dev server
+npm run dev
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Run tests
+npm run test:run
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app runs at `http://localhost:5173` by default.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Tech stack
 
+- React 19 + TypeScript
+- Vite (build tool)
+- Vitest + React Testing Library (testing)
+- dayjs (relative time formatting)
+- CSS Modules + CSS custom properties (styling)
+- localStorage (persistence)
+
+No UI libraries (Material UI, Ant Design, etc.) — all components are hand-built.
+
+---
+
+## How it works
+
+The app has three main layers:
+
+**UI Components** (`src/components/ui/`) — Reusable, stateless building blocks. Button, TextInput, TextArea, Select, Modal, Tag, Card, Toast, DateInput. Each has its own CSS file and accepts props for variants/states.
+
+**Features** (`src/features/`) — The actual app logic. BoardView renders three columns (Backlog, In Progress, Done). TaskCard displays individual tasks. TaskForm handles create/edit with validation.
+
+**Hooks** (`src/hooks/`) — Where the business logic lives. `useTasks` manages all task state with a reducer pattern + localStorage sync. `useUrlFilters` keeps filters in the URL so they survive refresh. `useDirtyState` warns you before losing unsaved form changes.
+
+**Storage** (`src/lib/storage.ts`) — Handles reading/writing localStorage with a versioned schema. If the app detects old data (v1), it migrates it to v2 format automatically and shows a toast notification.
+
+---
+
+## Key decisions
+
+**Why `useReducer` instead of a state library?** The task state has multiple related actions (add, update, delete, filter, sort). A reducer keeps those predictable without adding a dependency like Zustand or Redux. For an app this size, it's the right balance.
+
+**Why normalized state?** Tasks are stored as `Record<id, Task>` with a separate `ids` array. This gives O(1) lookups for updates/deletes instead of scanning arrays. It also makes the filtered view a simple derivation via `useMemo`.
+
+**Why synchronous hydration?** I initially used a `useEffect` to load from localStorage, but that caused a race condition where the save effect would fire with empty state on mount and wipe the stored data. The fix was to read localStorage directly in the reducer's initializer function — state is never empty on first render.
+
+**Why CSS Modules + custom properties?** Scoped styles prevent naming collisions. CSS variables give a consistent design token system (colors, spacing, radii) that's easy to theme. The monochrome palette is defined once in `index.css` and consumed everywhere.
+
+---
+
+## What's tested
+
+14 tests across two files:
+
+- `src/App.test.tsx` — Core CRUD workflow: create task, multiple tasks sorted correctly, update status (simulating drag-drop), delete task + verify localStorage
+- `src/features/board/BoardView.test.tsx` — Filtering and sorting: default sort, priority filter (single + multi), text search, status filter, sort by priority/updatedAt, combined filters, empty results, clear filters
+
+Tests use `renderHook` to test the `useTasks` hook directly. This validates all the logic (CRUD, filtering, sorting, persistence) without fighting React 19's concurrent renderer in jsdom.
+
+---
+
+## Known limitations and trade-offs
+
+- **No backend** — Everything is localStorage. If you clear browser data, tasks are gone. Fine for this scope but obviously not production-ready.
+- **Drag-and-drop is native HTML5** — Works but isn't as polished as react-beautiful-dnd or dnd-kit. No drag preview customization or smooth animations. Chose simplicity over adding another dependency.
+- **No virtual scrolling** — If you had hundreds of tasks per column, performance would degrade. For the expected scale (dozens of tasks), it's fine.
+- **Due date allows today** — The date picker prevents past dates but allows today. Depending on timezone edge cases, "today" might technically be past by the time someone finishes the task.
+- **No rich text** — Description is plain text (textarea). If this grew, you'd want a markdown editor or similar.
+
+---
+
+## AI assistance
+
+I used AI (Kiro/Claude) as a coding assistant during development. Here's how:
+
+**Where I used it:**
+- CSS theming — generating the monochrome color palette and applying it consistently across 14+ CSS files
+- Debugging the localStorage persistence bug — helped trace the race condition between useEffect load/save
+- SVG icons — generating inline SVG markup for edit, delete, calendar, and empty-state icons
+- Boilerplate reduction — initial component scaffolding and repetitive CSS rewrites during the redesign
+
+**What I changed from suggestions:**
+- Rewrote the `useTasks` hydration approach — AI's first fix (useRef guard) didn't work because both effects run in the same render cycle. I identified the real issue (effects fire with stale initial state) and switched to synchronous initialization via the reducer's lazy initializer
+- Adjusted the Select component — removed the placeholder option entirely instead of the suggested "make it optional via prop" approach, since both dropdowns (sort + priority) always have a valid default
+- Modified focus management — AI suggested autoFocus on the input directly, but that was overridden by the Modal's focus trap. I fixed the Modal to prefer inputs over buttons, and added a conditional `autoFocus={!isEditing}` so it only fires for new task creation
+
+The architecture decisions (normalized state, reducer pattern, URL filter sync, storage migration strategy) were my own design choices made before and during implementation.
+
+---
+
+## Project structure
+
+```
+src/
+├── components/
+│   ├── ui/                 Design system (Button, Modal, TextInput, etc.)
+│   └── ErrorBoundary.tsx   App-level error recovery
+├── features/
+│   ├── board/              BoardView, Column
+│   └── tasks/              TaskCard, TaskForm
+├── hooks/                  useTasks, useUrlFilters, useDirtyState, useToast
+├── lib/                    Storage layer (localStorage + migration)
+├── types/                  TypeScript interfaces
+├── test/                   Test setup
+├── App.tsx                 Root component
+├── App.css                 App-level styles
+├── index.css               Global tokens + reset
+└── main.tsx                Entry point
 ```
