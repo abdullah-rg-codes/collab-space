@@ -161,6 +161,7 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
                 value={title}
                 onChange={setTitle}
                 required
+                autoFocus={!isEditing}
                 error={errors.title}
             />
 
