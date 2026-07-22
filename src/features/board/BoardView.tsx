@@ -1,8 +1,19 @@
+import React, { useMemo, useCallback } from "react"
 import type { Task, TaskPriority } from "../../types"
 import { TaskStatus } from "../../types"
 import { TextInput, Button, Select } from "../../components/ui"
 import Column from "./Column"
 import styles from './BoardView.module.css'
+
+// Static arrays extracted outside component to avoid recreation on every render
+const COLUMNS: TaskStatus[] = [TaskStatus.BACKLOG, TaskStatus.IN_PROGRESS, TaskStatus.DONE]
+const PRIORITIES: TaskPriority[] = ['High', 'Medium', 'Low']
+const STATUSES: TaskStatus[] = [TaskStatus.BACKLOG, TaskStatus.IN_PROGRESS, TaskStatus.DONE]
+const SORT_OPTIONS = [
+  { value: 'createdAt', label: 'Created (Newest)' },
+  { value: 'updatedAt', label: 'Updated (Newest)' },
+  { value: 'priority', label: 'Priority' },
+]
 
 interface BoardViewProps {
   filteredTasks: Task[]
@@ -15,7 +26,7 @@ interface BoardViewProps {
   onTaskDrop: (task: Task, newStatus: TaskStatus) => void
 }
 
-export default function BoardView({
+export default React.memo(function BoardView({
   filteredTasks,
   filters,
   sortBy,
@@ -25,58 +36,47 @@ export default function BoardView({
   onTaskDelete,
   onTaskDrop
 }: BoardViewProps) {
-  console.log('[BoardView] Rendering BoardView')
-  console.log('[BoardView] Received filteredTasks:', filteredTasks)
+  // Memoize per-column task arrays to avoid filtering on every render
+  const tasksByColumn = useMemo(() => {
+    const map: Record<TaskStatus, Task[]> = {
+      [TaskStatus.BACKLOG]: [],
+      [TaskStatus.IN_PROGRESS]: [],
+      [TaskStatus.DONE]: [],
+    }
+    for (const task of filteredTasks) {
+      map[task.status].push(task)
+    }
+    return map
+  }, [filteredTasks])
 
-  const columns: TaskStatus[] = [
-    TaskStatus.BACKLOG,
-    TaskStatus.IN_PROGRESS,
-    TaskStatus.DONE,
-  ]
-
-  // Priority filter buttons
-  const priorities: TaskPriority[] = ['High', 'Medium', 'Low']
-
-  // Status filter values
-  const statuses: TaskStatus[] = [
-    TaskStatus.BACKLOG,
-    TaskStatus.IN_PROGRESS,
-    TaskStatus.DONE,
-  ]
-
-  // Handle priority filter toggle
-  const togglePriorityFilter = (priority: TaskPriority) => {
-    const newPriorities = filters.priority.includes(priority)
-      ? filters.priority.filter((p: TaskPriority) => p !== priority)
-      : [...filters.priority, priority]
+  // Memoize handlers that wrap setFilter
+  const togglePriorityFilter = useCallback((priority: TaskPriority) => {
+    const current = filters.priority
+    const newPriorities = current.includes(priority)
+      ? current.filter((p: TaskPriority) => p !== priority)
+      : [...current, priority]
     setFilter({ priority: newPriorities })
-  }
+  }, [setFilter, filters.priority])
 
-  // Handle status filter toggle
-  const toggleStatusFilter = (status: TaskStatus) => {
-    const newStatuses = filters.status.includes(status)
-      ? filters.status.filter((s: TaskStatus) => s !== status)
-      : [...filters.status, status]
+  const toggleStatusFilter = useCallback((status: TaskStatus) => {
+    const current = filters.status
+    const newStatuses = current.includes(status)
+      ? current.filter((s: TaskStatus) => s !== status)
+      : [...current, status]
     setFilter({ status: newStatuses })
-  }
+  }, [setFilter, filters.status])
 
-  // Handle search
-  const handleSearch = (searchText: string) => {
-    console.log('[BoardView] handleSearch() called with:', searchText)
+  const handleSearch = useCallback((searchText: string) => {
     setFilter({ search: searchText })
-  }
+  }, [setFilter])
 
-  // Handle sort change
-  const handleSortChange = (newSort: string) => {
-    console.log('[BoardView] handleSortChange() called with:', newSort)
+  const handleSortChange = useCallback((newSort: string) => {
     setSortBy(newSort as any)
-  }
+  }, [setSortBy])
 
-  // Clear all filters
-  const handleClearFilters = () => {
-    console.log('[BoardView] handleClearFilters() called')
+  const handleClearFilters = useCallback(() => {
     setFilter({ status: [], priority: [], search: '' })
-  }
+  }, [setFilter])
 
   // Check if there are any tasks at all
   const hasTasks = filteredTasks.length > 0
@@ -101,7 +101,7 @@ export default function BoardView({
 
         {/* Priority Filter Buttons */}
         <div className={styles.priorityFilters}>
-          {priorities.map(priority => (
+          {PRIORITIES.map(priority => (
             <Button
               key={priority}
               variant={filters.priority.includes(priority) ? 'primary' : 'secondary'}
@@ -115,7 +115,7 @@ export default function BoardView({
 
         {/* Status Filter Buttons */}
         <div className={styles.statusFilters}>
-          {statuses.map(status => (
+          {STATUSES.map(status => (
             <Button
               key={status}
               variant={filters.status.includes(status) ? 'primary' : 'secondary'}
@@ -131,11 +131,7 @@ export default function BoardView({
         <Select
           value={sortBy}
           onChange={handleSortChange}
-          options={[
-            { value: 'createdAt', label: 'Created (Newest)' },
-            { value: 'updatedAt', label: 'Updated (Newest)' },
-            { value: 'priority', label: 'Priority' },
-          ]}
+          options={SORT_OPTIONS}
           className={styles.sortSelect}
         />
 
@@ -179,22 +175,18 @@ export default function BoardView({
       {/* Board Columns - Only show if there are tasks */}
       {hasTasks && (
         <div className={styles.columnsWrapper}>
-        {columns.map(status => {
-          const tasksForStatus = filteredTasks.filter(task => task.status === status)
-          console.log(`[BoardView] Column ${status}: ${tasksForStatus.length} tasks`)
-          return (
+        {COLUMNS.map(status => (
             <Column
               key={status}
               status={status}
-              tasks={tasksForStatus}
+              tasks={tasksByColumn[status]}
               onTaskClick={onTaskClick}
               onTaskDelete={onTaskDelete}
               onTaskDrop={onTaskDrop}
             />
-          )
-        })}
+        ))}
         </div>
       )}
     </div>
   )
-}
+})

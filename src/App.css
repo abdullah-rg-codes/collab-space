@@ -60,3 +60,22 @@
     color: #b0b0b0;
   }
 }
+
+/* Delete confirmation modal */
+.deleteConfirmation {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deleteMessage {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.deleteActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}

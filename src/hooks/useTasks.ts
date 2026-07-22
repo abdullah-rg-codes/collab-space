@@ -178,8 +178,13 @@ export function useTasks(onError?: (message: string) => void) {
         dispatch({ type: 'SET_SORT', payload: sortBy })
     }, [])
 
+    // Memoize the tasks array to prevent new references on every render
+    const tasks = useMemo(() => {
+        return state.ids.map(id => state.tasks[id])
+    }, [state.ids, state.tasks])
+
     return {
-        tasks: state.ids.map(id => state.tasks[id]),
+        tasks,
         filteredTasks,
         filters: state.filters,
         sortBy: state.sortBy,

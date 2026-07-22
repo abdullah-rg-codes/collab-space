@@ -13,7 +13,7 @@
  * We seed tasks via addTask and then manipulate filters via setFilter/setSortBy,
  * exactly as the BoardView toolbar would.
  */
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTasks } from '../../hooks/useTasks'
 import type { Task } from '../../types'

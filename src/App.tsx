@@ -1,5 +1,5 @@
 import './App.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Task, TaskStatus, ToastProps } from './types'
 import { Button, Modal, ToastContainer } from './components/ui'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -14,9 +14,9 @@ function App() {
   const { toasts, addToast, removeToast } = useToast()
 
   // Error handler for storage operations
-  const handleStorageError = (message: string) => {
+  const handleStorageError = useCallback((message: string) => {
     addToast(message, 'error', 5000)
-  }
+  }, [addToast])
 
   const {
     addTask,
@@ -50,69 +50,59 @@ function App() {
   }, [filters.status, filters.priority, filters.search, sortBy, updateUrlWithFilters])
 
   // Handle edit task
-  const handleEditTask = (task: Task) => {
-    console.log('[App] handleEditTask() called with:', task)
+  const handleEditTask = useCallback((task: Task) => {
     setEditingTask(task)
     setIsModalOpen(true)
-  }
+  }, [])
 
   // Handle delete task - show confirmation
-  const handleDeleteTask = (task: Task) => {
-    console.log('[App] handleDeleteTask() called with:', task)
+  const handleDeleteTask = useCallback((task: Task) => {
     setTaskToDelete(task)
-  }
+  }, [])
 
   // Confirm delete
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     if (taskToDelete) {
-      console.log('[App] Confirming delete for task:', taskToDelete.id)
       deleteTask(taskToDelete.id)
       setTaskToDelete(undefined)
     }
-  }
+  }, [taskToDelete, deleteTask])
 
   // Cancel delete
-  const handleCancelDelete = () => {
-    console.log('[App] Cancelling delete')
+  const handleCancelDelete = useCallback(() => {
     setTaskToDelete(undefined)
-  }
+  }, [])
 
   // Handle task drop - move to different column
-  const handleTaskDrop = (task: Task, newStatus: TaskStatus) => {
-    console.log('[App] handleTaskDrop() called - moving task', task.id, 'to', newStatus)
+  const handleTaskDrop = useCallback((task: Task, newStatus: TaskStatus) => {
     if (task.status !== newStatus) {
       const updatedTask = { ...task, status: newStatus, updatedAt: Date.now() }
       updateTask(updatedTask)
     }
-  }
+  }, [updateTask])
 
   // Open modal for new task
-  const handleCreateNew = () => {
-    console.log('[App] handleCreateNew() called')
+  const handleCreateNew = useCallback(() => {
     setEditingTask(undefined)
     setIsModalOpen(true)
-  }
+  }, [])
 
   // Handle form submit (create or update)
-  const handleFormSubmit = (task: Task) => {
-    console.log('[App] handleFormSubmit() called with:', task)
+  const handleFormSubmit = useCallback((task: Task) => {
     if (editingTask) {
-      console.log('[App] Updating existing task')
       updateTask(task)
     } else {
-      console.log('[App] Adding new task')
       addTask(task)
     }
     setIsModalOpen(false)
     setEditingTask(undefined)
-  }
+  }, [editingTask, updateTask, addTask])
 
   // Handle modal close
-  const handleCloseModal = () => {
-    console.log('[App] handleCloseModal() called')
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false)
     setEditingTask(undefined)
-  }
+  }, [])
 
   return (
     <ErrorBoundary>
@@ -147,11 +137,11 @@ function App() {
 
         {/* Delete Confirmation Modal */}
         <Modal isOpen={!!taskToDelete} title="Delete Task" onClose={handleCancelDelete}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <p style={{ margin: 0, fontSize: '14px', color: '#333' }}>
+          <div className="deleteConfirmation">
+            <p className="deleteMessage">
               Are you sure you want to delete this task?
             </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <div className="deleteActions">
               <Button variant="secondary" onClick={handleCancelDelete}>
                 Cancel
               </Button>

@@ -10,12 +10,11 @@ dayjs.extend(relativeTime)
 
 interface TaskCardProps {
     task: Task
-    onEdit?: () => void
-    onDelete?: () => void
-    onDragStart?: (e: React.DragEvent) => void
+    onEdit?: (task: Task) => void
+    onDelete?: (task: Task) => void
 }
 
-const TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete, onDragStart }: TaskCardProps) {
+const TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
     // Priority color mapping
     const priorityColors: Record<TaskPriority, string> = {
         High: '#d32f2f',
@@ -23,18 +22,23 @@ const TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete, onDragSt
         Low: '#388e3c',
     }
 
+    const handleDragStart = (e: React.DragEvent) => {
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('application/json', JSON.stringify(task))
+    }
+
     return (
         <div 
             className={styles.taskCard}
             draggable
-            onDragStart={onDragStart}
+            onDragStart={handleDragStart}
         >
             {/* Action Buttons */}
             <div className={styles.actionButtons}>
                 {onEdit && (
                     <button
                         className={styles.editButton}
-                        onClick={onEdit}
+                        onClick={() => onEdit(task)}
                         title="Edit task"
                         aria-label="Edit task"
                     >
@@ -44,7 +48,7 @@ const TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete, onDragSt
                 {onDelete && (
                     <button
                         className={styles.deleteButton}
-                        onClick={onDelete}
+                        onClick={() => onDelete(task)}
                         title="Delete task"
                         aria-label="Delete task"
                     >
