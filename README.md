@@ -81,7 +81,6 @@ Tests use `renderHook` to test the `useTasks` hook directly. This validates all 
 - **No backend** — Everything is localStorage. If you clear browser data, tasks are gone. Fine for this scope but obviously not production-ready.
 - **Drag-and-drop is native HTML5** — Works but isn't as polished as react-beautiful-dnd or dnd-kit. No drag preview customization or smooth animations. Chose simplicity over adding another dependency.
 - **No virtual scrolling** — If you had hundreds of tasks per column, performance would degrade. For the expected scale (dozens of tasks), it's fine.
-- **No debounce on search** — The text filter runs on every keystroke. With the current data size this is imperceptible, but for large datasets you'd want a debounce.
 - **Due date allows today** — The date picker prevents past dates but allows today. Depending on timezone edge cases, "today" might technically be past by the time someone finishes the task.
 - **No rich text** — Description is plain text (textarea). If this grew, you'd want a markdown editor or similar.
 
