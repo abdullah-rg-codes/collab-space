@@ -128,7 +128,7 @@ function App() {
           onTaskDelete={handleDeleteTask}
           onTaskDrop={handleTaskDrop} /></main>
         {/* Create/Edit Task Modal */}
-        <Modal isOpen={isModalOpen} title={editingTask ? 'Edit Task' : 'Create New Task'}
+        <Modal isOpen={isModalOpen} title={editingTask ? 'Edit Task' : 'New Task'}
           onClose={handleCloseModal}>
           <TaskForm task={editingTask}
             onSubmit={handleFormSubmit}

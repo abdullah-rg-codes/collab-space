@@ -19,7 +19,8 @@ export function TextInput({
   required = false,
   className = '',
   onKeyDown,
-}: TextInputProps & { type?: string; onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void }): React.JSX.Element {
+  autoFocus = false,
+}: TextInputProps & { type?: string; onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void; autoFocus?: boolean }): React.JSX.Element {
   const inputId = `input_${Math.random().toString(36).substr(2, 9)}`
   const errorId = error ? `${inputId}_error` : undefined
 
@@ -41,6 +42,7 @@ export function TextInput({
         onKeyDown={onKeyDown}
         disabled={disabled}
         required={required}
+        autoFocus={autoFocus}
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={errorId}
       />

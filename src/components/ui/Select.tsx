@@ -40,7 +40,6 @@ export function Select({
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={errorId}
       >
-        <option value="">-- Select an option --</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

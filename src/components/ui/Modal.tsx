@@ -32,7 +32,10 @@ export function Modal({
     const focusableElements = dialog.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     )
-    const firstFocusable = focusableElements[0] as HTMLElement
+
+    // Prefer the first input/textarea for forms, otherwise first focusable
+    const firstInput = dialog.querySelector('input:not([disabled]), textarea:not([disabled])') as HTMLElement
+    const firstFocusable = (firstInput || focusableElements[0]) as HTMLElement
     firstFocusable?.focus()
 
     // Handle keyboard escape
