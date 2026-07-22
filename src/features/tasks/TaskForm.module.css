@@ -21,6 +21,45 @@
   font-size: 14px;
 }
 
+.errorBanner {
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
+  color: #e65100;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.errorIcon {
+  font-size: 18px;
+}
+
+.fieldError {
+  margin: -8px 0 8px 0;
+  padding: 0;
+  font-size: 12px;
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.charCount {
+  margin: -12px 0 12px 0;
+  padding: 0;
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+}
+
+.optional {
+  font-size: 12px;
+  color: #999;
+  font-weight: 400;
+}
+
 .tagsSection {
   display: flex;
   flex-direction: column;
@@ -77,4 +116,64 @@
   gap: 12px;
   justify-content: flex-end;
   margin-top: 12px;
+}
+
+.createdAtReadOnly {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.createdAtReadOnly label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.createdAtReadOnly p {
+  margin: 0;
+  padding: 10px 12px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #666;
+  font-size: 14px;
+}
+
+.dirtyWarningOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dirtyWarningDialog {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dirtyWarningDialog h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.dirtyWarningDialog p {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.dirtyWarningActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }

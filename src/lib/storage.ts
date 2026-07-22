@@ -11,7 +11,6 @@ import type { Task } from "../types";
 const STORAGE_KEY = 'collab-space-data';
 const CURRENT_VERSION = 2;
 
-
 // * Storage schema interface - versioned
 interface StorageSchema {
   version: number
@@ -41,8 +40,11 @@ interface StorageSchemaV1 {
  * Changes:
  * - Rename 'desc' field to 'description'
  * - Add empty 'tags' array
+ * - Add 'dueDate' field (default to createdAt + 7 days)
  */
 function migrateV1ToV2(data: StorageSchemaV1): StorageSchema {
+  console.log('[Storage] Migrating V1 → V2: Renaming desc→description, adding tags and dueDate')
+  const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000
   return {
     version: 2,
     tasks: data.tasks.map((task: any) => ({
@@ -55,6 +57,7 @@ function migrateV1ToV2(data: StorageSchemaV1): StorageSchema {
       tags: [],
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
+      dueDate: task.createdAt + ONE_WEEK_MS, // Default to 7 days after creation
     })),
     lastMigrated: Date.now(),
   }
@@ -63,11 +66,12 @@ function migrateV1ToV2(data: StorageSchemaV1): StorageSchema {
 //  Migrate data to current version
 function migrate(data: any): StorageSchema {
   if (!data.version || data.version === 1) {
-    console.log('[Storage] Migrating from V1 to V2')
+    console.log('[Storage] Detected V1 schema, migrating to V2')
     return migrateV1ToV2(data)
   }
 
   if (data.version === CURRENT_VERSION) {
+    console.log('[Storage] Data already at current version (V2)')
     return data
   }
 
@@ -84,6 +88,7 @@ let migrationHappened = false
 // * Load tasks from localStorage
 export function loadTasks(): Task[] {
   try {
+    console.log('[Storage] loadTasks() called')
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       console.log('[Storage] No existing data, starting new')
@@ -91,9 +96,12 @@ export function loadTasks(): Task[] {
       return []
     }
     const parsed = JSON.parse(raw);
+    console.log('[Storage] Parsed data:', parsed)
     const migrated = migrate(parsed);
+    console.log('[Storage] Migrated data:', migrated)
     migrationHappened = parsed.version !== CURRENT_VERSION
     localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
+    console.log('[Storage] Loaded tasks count:', migrated.tasks?.length)
     return migrated.tasks || [];
   } catch (err) {
     console.error('[Storage] Failed to load tasks:', err)
@@ -105,12 +113,15 @@ export function loadTasks(): Task[] {
 // Save tasks to localStorage
 export function saveTasks(tasks: Task[]): boolean {
   try {
+    console.log('[Storage] saveTasks() called with', tasks.length, 'tasks')
+    console.log('[Storage] Tasks to save:', tasks)
     const data: StorageSchema = {
       version: CURRENT_VERSION,
       tasks,
       lastMigrated: Date.now(),
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    console.log('[Storage] Successfully saved to localStorage')
     return true
   } catch (error) {
     console.error('[Storage] Failed to save tasks:', error)

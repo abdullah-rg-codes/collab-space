@@ -2,13 +2,20 @@ import type { Task, TaskPriority } from "../../types"
 import { Tag } from "../../components/ui"
 import styles from './TaskCard.module.css'
 import React from "react"
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
+
+// Enable the relativeTime plugin
+dayjs.extend(relativeTime)
 
 interface TaskCardProps {
     task: Task
-    onClick?: () => void
+    onEdit?: () => void
+    onDelete?: () => void
+    onDragStart?: (e: React.DragEvent) => void
 }
 
-const TaskCard = React.memo(function TaskCard({ task, onClick }: TaskCardProps) {
+const TaskCard = React.memo(function TaskCard({ task, onEdit, onDelete, onDragStart }: TaskCardProps) {
     // Priority color mapping
     const priorityColors: Record<TaskPriority, string> = {
         High: '#d32f2f',
@@ -17,15 +24,35 @@ const TaskCard = React.memo(function TaskCard({ task, onClick }: TaskCardProps) 
     }
 
     return (
-        <div
+        <div 
             className={styles.taskCard}
-            onClick={onClick}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') onClick?.()
-            }}
+            draggable
+            onDragStart={onDragStart}
         >
+            {/* Action Buttons */}
+            <div className={styles.actionButtons}>
+                {onEdit && (
+                    <button
+                        className={styles.editButton}
+                        onClick={onEdit}
+                        title="Edit task"
+                        aria-label="Edit task"
+                    >
+                        ✏️
+                    </button>
+                )}
+                {onDelete && (
+                    <button
+                        className={styles.deleteButton}
+                        onClick={onDelete}
+                        title="Delete task"
+                        aria-label="Delete task"
+                    >
+                        🗑️
+                    </button>
+                )}
+            </div>
+
             {/* Task Title */}
             <h3 className={styles.taskTitle}>{task.title}</h3>
 
@@ -40,6 +67,13 @@ const TaskCard = React.memo(function TaskCard({ task, onClick }: TaskCardProps) 
                 <span className={styles.assignee}>{task.assignee}</span>
             </div>
 
+            {/* Due Date */}
+            {task.dueDate && (
+                <div className={styles.dueDate}>
+                    📅 Due: {dayjs(task.dueDate).format('MMM D, YYYY')}
+                </div>
+            )}
+
             {/* Tags */}
             {task.tags.length > 0 && (
                 <div className={styles.tagsContainer}>
@@ -50,6 +84,12 @@ const TaskCard = React.memo(function TaskCard({ task, onClick }: TaskCardProps) 
                     ))}
                 </div>
             )}
+
+            {/* Relative Time */}
+            <div className={styles.relativeTime}>
+                <div>created {dayjs(task.createdAt).fromNow()}</div>
+                <div>updated {dayjs(task.updatedAt).fromNow()}</div>
+            </div>
         </div>
     )
 })

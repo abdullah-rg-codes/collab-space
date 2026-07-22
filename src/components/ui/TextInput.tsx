@@ -18,7 +18,8 @@ export function TextInput({
   type = 'text',
   required = false,
   className = '',
-}: TextInputProps & { type?: string }): React.JSX.Element {
+  onKeyDown,
+}: TextInputProps & { type?: string; onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void }): React.JSX.Element {
   const inputId = `input_${Math.random().toString(36).substr(2, 9)}`
   const errorId = error ? `${inputId}_error` : undefined
 
@@ -37,6 +38,7 @@ export function TextInput({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onKeyDown}
         disabled={disabled}
         required={required}
         aria-invalid={error ? 'true' : 'false'}

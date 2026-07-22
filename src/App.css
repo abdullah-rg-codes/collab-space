@@ -1,53 +1,62 @@
 /* App Styles */
 .app {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.app header {
-  text-align: center;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 1.5rem;
-}
-
-.app header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-}
-
-.app header p {
-  color: #6b7280;
-  margin: 0;
-  font-size: 1rem;
-}
-
-.app .placeholder {
+  min-height: 100vh;
+  background: #fafafa;
   display: flex;
+  flex-direction: column;
+}
+
+.appHeader {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  background-color: #f9fafb;
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
-  color: #9ca3af;
-  font-size: 1.125rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.headerContent h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #333;
+  font-weight: 700;
+}
+
+.headerContent p {
+  margin: 4px 0 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.appMain {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 @media (prefers-color-scheme: dark) {
-  .app header {
-    border-bottom-color: #374151;
+  .app {
+    background: #1a1a1a;
   }
 
-  .app header p {
-    color: #d1d5db;
+  .appHeader {
+    background: #2d2d2d;
+    border-bottom-color: #444;
   }
 
-  .app .placeholder {
-    background-color: #1f2937;
-    border-color: #4b5563;
-    color: #6b7280;
+  .headerContent h1 {
+    color: #f5f5f5;
+  }
+
+  .headerContent p {
+    color: #b0b0b0;
   }
 }

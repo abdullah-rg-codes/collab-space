@@ -5,10 +5,39 @@
 }
 
 .boardContainer h1 {
-  margin-bottom: 20px;
+  margin: 0 0 20px 0;
   color: #333;
 }
 
+/* Toolbar with filters */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 200px;
+}
+
+.priorityFilters {
+  display: flex;
+  gap: 8px;
+}
+
+.statusFilters {
+  display: flex;
+  gap: 8px;
+}
+
+.sortSelect {
+  min-width: 180px;
+}
+
+/* Columns grid */
 .columnsWrapper {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -18,9 +47,56 @@
   margin: 0 auto;
 }
 
-/* Mobile: stack columns vertically */
+/* Board-level empty states */
+.boardEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 40px;
+  text-align: center;
+  color: #999;
+  min-height: 400px;
+}
+
+.boardEmptyState .emptyStateIcon {
+  font-size: 64px;
+  opacity: 0.5;
+}
+
+.boardEmptyState .emptyStateTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #555;
+}
+
+.boardEmptyState .emptyStateDescription {
+  margin: 0;
+  font-size: 16px;
+  color: #999;
+  line-height: 1.5;
+  max-width: 400px;
+}
+
+/* Mobile: stack columns */
 @media (max-width: 1024px) {
   .columnsWrapper {
     grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchInput,
+  .sortSelect {
+    width: 100%;
+  }
+
+  .priorityFilters {
+    justify-content: flex-start;
   }
 }

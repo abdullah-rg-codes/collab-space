@@ -24,8 +24,9 @@ export interface Task {
   priority: TaskPriority;
   assignee: string;
   tags: string[];
-  createdAt: number; // timestamp
-  updatedAt: number; // timestamp
+  createdAt: number; // timestamp - when task was created (read-only)
+  updatedAt: number; // timestamp - when task was last modified
+  dueDate: number; // timestamp - task deadline/finish date
 }
 
 export interface TasksState {
