@@ -75,24 +75,38 @@ function tasksReducer(state: TasksState, action: TaskAction): TasksState {
             return state
     }
 }
-export function useTasks() {
+export function useTasks(onError?: (message: string) => void) {
     console.log('[useTasks] Hook initialized')
     const [state, dispatch] = useReducer(tasksReducer, initialState)
 
     // Load tasks from storage on mount
     useEffect(() => {
         console.log('[useTasks] Loading tasks on mount')
-        const tasks = loadTasks()
-        console.log('[useTasks] Loaded', tasks.length, 'tasks from storage')
-        dispatch({ type: 'LOAD_TASKS', payload: tasks })
-    }, [])
+        try {
+            const tasks = loadTasks()
+            console.log('[useTasks] Loaded', tasks.length, 'tasks from storage')
+            dispatch({ type: 'LOAD_TASKS', payload: tasks })
+        } catch (error) {
+            console.error('[useTasks] Failed to load tasks:', error)
+            if (onError) {
+                onError('Failed to load tasks from storage')
+            }
+        }
+    }, [onError])
 
     //save to storage whenever tasks change
     useEffect(() => {
         const allTasks = state.ids.map(id => state.tasks[id])
         console.log('[useTasks] useEffect: Saving', allTasks.length, 'tasks to storage')
-        saveTasks(allTasks)
-    }, [state.tasks, state.ids])
+        try {
+            saveTasks(allTasks)
+        } catch (error) {
+            console.error('[useTasks] Failed to save tasks:', error)
+            if (onError) {
+                onError('Failed to save tasks to storage')
+            }
+        }
+    }, [state.tasks, state.ids, onError])
 
     // Compute filtered and sorted tasks
     const filteredTasks = useMemo(() => {

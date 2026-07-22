@@ -1,0 +1,63 @@
+.errorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%);
+  padding: 20px;
+}
+
+.errorContent {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 500px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.errorTitle {
+  margin: 0 0 12px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #d32f2f;
+}
+
+.errorMessage {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.errorDetails {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  color: #999;
+  line-height: 1.4;
+}
+
+.retryButton {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retryButton:hover {
+  background: #1565c0;
+}
+
+.retryButton:active {
+  background: #0d47a1;
+}

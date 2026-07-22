@@ -2,6 +2,7 @@ import './App.css'
 import { useState, useEffect } from 'react'
 import type { Task, TaskStatus, ToastProps } from './types'
 import { Button, Modal, ToastContainer } from './components/ui'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { useTasks } from './hooks/useTasks'
 import { useUrlFilters } from './hooks/useUrlFilters'
 import { useToast } from './hooks/useToast'
@@ -10,6 +11,13 @@ import BoardView from './features/board/BoardView'
 import TaskForm from './features/tasks/TaskForm'
 
 function App() {
+  const { toasts, addToast, removeToast } = useToast()
+
+  // Error handler for storage operations
+  const handleStorageError = (message: string) => {
+    addToast(message, 'error', 5000)
+  }
+
   const {
     addTask,
     updateTask,
@@ -19,9 +27,7 @@ function App() {
     sortBy,
     setFilter,
     setSortBy,
-  } = useTasks()
-
-  const { toasts, addToast, removeToast } = useToast()
+  } = useTasks(handleStorageError)
 
   // Initialize URL filters on mount
   const { updateUrlWithFilters } = useUrlFilters(setFilter, setSortBy)
@@ -109,7 +115,7 @@ function App() {
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <div className="app">
         <header className="appHeader">
           <div className='headerContent'>
@@ -156,7 +162,7 @@ function App() {
           </div>
         </Modal>
       </div>
-    </>
+    </ErrorBoundary>
   )
 }
 
