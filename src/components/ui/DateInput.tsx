@@ -11,6 +11,9 @@ interface DateInputProps extends UIComponentProps {
 }
 
 function DateInput({ label, value, onChange, error, disabled, required, className }: DateInputProps) {
+  // Get today's date in YYYY-MM-DD format to prevent selecting past dates
+  const today = new Date().toISOString().split('T')[0]
+
   return (
     <div className={`date-input-container ${className || ''}`}>
       {label && (
@@ -22,6 +25,7 @@ function DateInput({ label, value, onChange, error, disabled, required, classNam
       <input
         type="date"
         value={value}
+        min={today}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         className={`date-input ${error ? 'date-input-error' : ''}`}

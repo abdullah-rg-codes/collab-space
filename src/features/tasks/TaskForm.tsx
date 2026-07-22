@@ -69,6 +69,8 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
         const selectedDate = dayjs(dueDate)
         if (!selectedDate.isValid()) {
             newErrors.dueDate = 'Please select a valid date'
+        } else if (selectedDate.isBefore(dayjs().startOf('day'))) {
+            newErrors.dueDate = 'Due date cannot be in the past'
         }
 
         // Tags validation
@@ -194,18 +196,18 @@ function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
             {errors.assignee && <p className={styles.fieldError}>{errors.assignee}</p>}
             <p className={styles.charCount}>{assignee.length}/50 characters</p>
 
-            {/* Task Finish Date (Due Date) - Editable */}
+            {/* Due Date - Editable */}
             <DateInput
-                label="Task Finish Date"
+                label="Due Date"
                 value={dueDate}
                 onChange={setDueDate}
             />
             {errors.dueDate && <p className={styles.fieldError}>{errors.dueDate}</p>}
 
-            {/* Created At - Read-only (only shown in edit mode) */}
+            {/* Created - Read-only (only shown in edit mode) */}
             {createdAtDisplay && (
                 <div className={styles.createdAtReadOnly}>
-                    <label>Created At</label>
+                    <label>Created</label>
                     <p>{createdAtDisplay}</p>
                 </div>
             )}

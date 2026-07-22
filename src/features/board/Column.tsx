@@ -54,7 +54,13 @@ const Column = React.memo(function Column({ status, tasks, onTaskClick, onTaskDe
             >
                 {tasks.length === 0 ? (
                     <div className={styles.emptyState}>
-                        <div className={styles.emptyStateIcon}>📭</div>
+                        <div className={styles.emptyStateIcon}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 8V21H3V8" />
+                                <path d="M1 3h22v5H1z" />
+                                <path d="M10 12h4" />
+                            </svg>
+                        </div>
                         <p className={styles.emptyStateTitle}>No tasks yet</p>
                         <p className={styles.emptyStateDescription}>
                             {status === 'Backlog' && 'Ready to add a new task? Create one above!'}
