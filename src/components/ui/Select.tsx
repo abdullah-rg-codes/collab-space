@@ -4,7 +4,7 @@
  * Features: label, options array, error state, aria attributes
  */
 
-import React from 'react'
+import React, { useId } from 'react'
 import type { SelectProps } from '../../types/index'
 import './Select.css'
 
@@ -18,7 +18,8 @@ export function Select({
   required = false,
   className = '',
 }: SelectProps): React.JSX.Element {
-  const selectId = `select_${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const selectId = `select_${generatedId}`
   const errorId = error ? `${selectId}_error` : undefined
 
   return (

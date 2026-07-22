@@ -11,7 +11,7 @@ interface ColumnProps {
     onTaskDrop: (task: Task, newStatus: TaskStatus) => void
 }
 
-function Column({ status, tasks, onTaskClick, onTaskDelete, onTaskDrop }: ColumnProps) {
+const Column = React.memo(function Column({ status, tasks, onTaskClick, onTaskDelete, onTaskDrop }: ColumnProps) {
     const [isDragOver, setIsDragOver] = React.useState(false)
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -67,18 +67,14 @@ function Column({ status, tasks, onTaskClick, onTaskDelete, onTaskDrop }: Column
                         <TaskCard 
                             key={task.id} 
                             task={task} 
-                            onEdit={() => onTaskClick(task)}
-                            onDelete={() => onTaskDelete(task)}
-                            onDragStart={(e) => {
-                                e.dataTransfer.effectAllowed = 'move'
-                                e.dataTransfer.setData('application/json', JSON.stringify(task))
-                            }}
+                            onEdit={onTaskClick}
+                            onDelete={onTaskDelete}
                         />
                     ))
                 )}
             </div>
         </div>
     )
-}
+})
 
 export default Column
